@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+    "Name": "Logitech Battery",
+    "Version": "0.1.0.0",
+    "Author": "Alex Biczak",
+    "Description": "Show a Logitech wireless device's battery level on a key.",
+    "Icon": "imgs/plugin/marketplace",
+    "Category": "Logitech Battery",
+    "CategoryIcon": "imgs/plugin/category-icon",
+    "CodePath": "bin/plugin.js",
+    "UUID": "dev.biczak.logitech-battery",
+    "SDKVersion": 3,
+    "Software": { "MinimumVersion": "7.1" },
+    "Nodejs": { "Version": "24", "Debug": "enabled" },
+    "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
+    "Actions": [
+        {
+            "Name": "Battery Status",
+            "UUID": "dev.biczak.logitech-battery.status",
+            "Icon": "imgs/actions/status/icon",
+            "Tooltip": "Show a Logitech device's battery level.",
+            "PropertyInspectorPath": "ui/status.html",
+            "Controllers": ["Keypad"],
+            "States": [{ "Image": "imgs/actions/status/key", "TitleAlignment": "bottom", "FontSize": 12 }]
+        }
+    ]
+}

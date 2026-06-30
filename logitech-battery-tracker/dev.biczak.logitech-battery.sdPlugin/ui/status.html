@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<title>Battery Status Settings</title>
+	<meta charset="utf-8" />
+	<script src="sdpi-components.js"></script>
+</head>
+<body>
+	<sdpi-item label="Device">
+		<sdpi-select setting="deviceId" datasource="getDevices" placeholder="Select a device" loading="Detecting devices…" hot-reload></sdpi-select>
+	</sdpi-item>
+
+	<sdpi-item label="Show percentage">
+		<sdpi-checkbox setting="showNumber" default="true"></sdpi-checkbox>
+	</sdpi-item>
+
+	<sdpi-item label="Color mode">
+		<sdpi-select setting="colorMode" default="smooth">
+			<option value="smooth">Smooth (gradient)</option>
+			<option value="tiers">Tiers (3 colors)</option>
+		</sdpi-select>
+	</sdpi-item>
+
+	<sdpi-item label="Charge accent">
+		<sdpi-color setting="chargeAccent" default="#ffd54f"></sdpi-color>
+	</sdpi-item>
+
+	<sdpi-item label="G HUB poll (s)">
+		<sdpi-range setting="pollSeconds" min="5" max="600" step="5" default="60" showlabels></sdpi-range>
+	</sdpi-item>
+	<p style="margin: 2px 12px 0; color: #8e8e8e; font-size: 11px; line-height: 1.4;">
+		HID++ devices update instantly via events — this only sets the refresh rate for the G HUB fallback.
+	</p>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Battery Key preview</title>
+	<style>
+		body { margin: 0; min-height: 100vh; background: radial-gradient(120% 120% at 50% 0%, #161619 0%, #0c0c0e 60%);
+			color: #e9e9ec; font-family: system-ui, sans-serif; display: flex; flex-direction: column;
+			align-items: center; padding: 56px 24px; gap: 18px; }
+		.stage { width: 288px; height: 288px; display: flex; align-items: center; justify-content: center; }
+		.stage > div { transform: scale(2); transform-origin: center; }
+		.panel { width: 340px; background: #161619; border: 1px solid #26262c; border-radius: 16px; padding: 22px;
+			display: flex; flex-direction: column; gap: 16px; }
+		label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #7a7a82; }
+		.row { display: flex; gap: 8px; align-items: center; }
+	</style>
+</head>
+<body>
+	<div class="stage"><div id="key"></div></div>
+	<div class="panel">
+		<div><label>Battery <span id="pctval">72%</span></label><input id="pct" type="range" min="0" max="100" value="72" style="width:100%"></div>
+		<div class="row"><label>State</label>
+			<select id="state"><option value="active">active</option><option value="asleep">asleep</option><option value="off">off</option></select>
+			<label><input id="charging" type="checkbox"> charging</label></div>
+		<div class="row"><label>Mode</label>
+			<select id="mode"><option value="smooth">smooth</option><option value="tiers">tiers</option></select>
+			<label><input id="shownum" type="checkbox" checked> number</label>
+			<input id="accent" type="color" value="#ffd54f"></div>
+	</div>
+	<script type="module">
+		import { renderKey } from "./render-key.mjs";
+		const $ = (id) => document.getElementById(id);
+		function draw() {
+			$("pctval").textContent = $("pct").value + "%";
+			$("key").innerHTML = renderKey({
+				percent: Number($("pct").value),
+				state: $("state").value,
+				charging: $("charging").checked,
+				showNumber: $("shownum").checked,
+				colorMode: $("mode").value,
+				chargeAccent: $("accent").value,
+			});
+		}
+		for (const id of ["pct", "state", "charging", "mode", "shownum", "accent"]) $(id).addEventListener("input", draw);
+		draw();
+	</script>
+</body>
+</html>

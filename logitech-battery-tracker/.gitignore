@@ -1,0 +1,7 @@
+node_modules/
+*.log
+.DS_Store
+*.sdPlugin/bin
+*.sdPlugin/logs
+*.sdPlugin/node_modules
+preview/render-key.mjs

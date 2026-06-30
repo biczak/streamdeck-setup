@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+  </style>
+</helmet>
+<div style="min-height:100vh; background:radial-gradient(120% 120% at 50% 0%, #161619 0%, #0c0c0e 60%); color:#e9e9ec; font-family:'Space Grotesk', system-ui, sans-serif; display:flex; flex-direction:column; align-items:center; padding:56px 24px 72px; gap:8px;">
+
+  <div style="font-size:13px; letter-spacing:2.5px; text-transform:uppercase; color:#6e6e76; font-weight:600;">Stream Deck · Battery Key</div>
+  <div style="font-size:22px; font-weight:600; color:#f4f4f6; margin-bottom:28px;">Logitech&nbsp;G — Battery Status</div>
+
+  <!-- 2x preview stage; the icon itself renders at 144×144 -->
+  <div style="width:288px; height:288px; display:flex; align-items:center; justify-content:center; margin-bottom:4px;">
+    <div style="width:144px; height:144px; transform:scale(2); transform-origin:center;">
+      <!-- ===== THE 144×144 KEY ICON ===== -->
+      <div style="width:144px; height:144px; position:relative; border-radius:18px; overflow:hidden; background:#1a1a1f; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.04);">
+
+        <!-- battery -->
+        <div style="position:absolute; top:38px; left:0; right:0; display:flex; align-items:center; justify-content:center;">
+          <div style="width:96px; height:46px; padding:4px; border-radius:9px; display:flex; align-items:center; border:3px solid {{ strokeColor }};">
+            <div style="height:100%; border-radius:5px; transition:width .45s cubic-bezier(.4,0,.2,1), background-color .45s ease, opacity .3s ease; width:{{ fillWidth }}; background:{{ fillColor }}; opacity:{{ fillOpacity }};"></div>
+          </div>
+          <div style="width:6px; height:18px; border-radius:0 3px 3px 0; margin-left:2px; background:{{ strokeColor }};"></div>
+        </div>
+
+        <!-- charging badge (above the battery) -->
+        <sc-if value="{{ showCharge }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:22px; height:22px; border-radius:50%; background:#16161a; display:flex; align-items:center; justify-content:center; border:2px solid {{ chargeAccent }}; box-shadow:0 2px 6px rgba(0,0,0,0.5);">
+            <svg width="10" height="13" viewBox="0 0 14 18" aria-hidden="true">
+              <polygon points="8,0 0,10 5,10 4,18 14,7 8,7" fill="{{ chargeAccent }}"></polygon>
+            </svg>
+          </div>
+        </sc-if>
+
+        <!-- percentage -->
+        <sc-if value="{{ showNumber }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute; top:96px; left:0; right:0; text-align:center; font-size:30px; font-weight:600; letter-spacing:.5px; color:{{ numberColor }};">{{ pctLabel }}</div>
+        </sc-if>
+      </div>
+      <!-- ===== END KEY ICON ===== -->
+    </div>
+  </div>
+
+  <!-- state caption -->
+  <div style="font-size:13px; color:#85858d; height:18px; margin-bottom:24px;">{{ caption }}</div>
+
+  <!-- controls -->
+  <div style="width:340px; background:#161619; border:1px solid #26262c; border-radius:16px; padding:22px; display:flex; flex-direction:column; gap:22px;">
+
+    <!-- battery slider -->
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline;">
+        <span style="font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:#7a7a82; font-weight:600;">Battery</span>
+        <span style="font-size:14px; font-weight:600; color:{{ sliderValColor }};">{{ sliderLabel }}</span>
+      </div>
+      <input type="range" min="0" max="100" value="{{ pct }}" onInput="{{ onPct }}" disabled="{{ sliderDisabled }}" style="width:100%; accent-color:{{ accentColor }}; cursor:pointer;">
+    </div>
+
+    <!-- connection state -->
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <span style="font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:#7a7a82; font-weight:600;">Connection</span>
+      <div style="display:flex; gap:8px;">
+        <button onClick="{{ setActive }}" style="{{ activeBtnStyle }}">Active</button>
+        <button onClick="{{ setSleep }}" style="{{ sleepBtnStyle }}">Asleep</button>
+        <button onClick="{{ setOff }}" style="{{ offBtnStyle }}">No device</button>
+      </div>
+    </div>
+
+    <!-- charging -->
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <span style="font-size:14px; font-weight:500; color:{{ chargeLabelColor }};">Plugged in / charging</span>
+      <button onClick="{{ toggleCharge }}" disabled="{{ chargeDisabled }}" style="{{ switchStyle }}">
+        <span style="{{ knobStyle }}"></span>
+      </button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:620},&quot;showNumber&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Icon&quot;},&quot;colorMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;smooth&quot;,&quot;tiers&quot;],&quot;default&quot;:&quot;smooth&quot;,&quot;tsType&quot;:&quot;'smooth' | 'tiers'&quot;,&quot;section&quot;:&quot;Icon&quot;},&quot;chargeAccent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#ffd54f&quot;,&quot;options&quot;:[&quot;#ffd54f&quot;,&quot;#5cc8ff&quot;,&quot;#7ee787&quot;,&quot;#ffffff&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Icon&quot;}}">
+class Component extends DCLogic {
+  state = { pct: 72, conn: 'active', charging: false };
+
+  fillColorFor(pct, mode) {
+    if (mode === 'tiers') {
+      if (pct <= 20) return '#e5484d';
+      if (pct <= 55) return '#f5a524';
+      return '#46a758';
+    }
+    // smooth red -> amber -> green
+    const h = Math.max(0, Math.min(120, Math.round(pct * 1.2)));
+    return `hsl(${h} 72% 47%)`;
+  }
+
+  renderVals() {
+    const { pct, conn, charging } = this.state;
+    const showNumber = this.props.showNumber ?? true;
+    const chargeAccent = this.props.chargeAccent ?? '#ffd54f';
+    const colorMode = this.props.colorMode ?? 'smooth';
+
+    const isActive = conn === 'active';
+    const isSleep = conn === 'sleep';
+    const isOff = conn === 'off';
+    const accentColor = this.fillColorFor(pct, colorMode);
+
+    const setConn = (v) => () => this.setState({ conn: v });
+
+    const segBase = (sel) =>
+      `flex:1; padding:9px 4px; border-radius:9px; cursor:pointer;` +
+      ` font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:600; letter-spacing:.3px;` +
+      ` border:1px solid ${sel ? '#3c3c45' : '#2a2a31'};` +
+      ` background:${sel ? '#26262e' : 'transparent'};` +
+      ` color:${sel ? '#f2f2f4' : '#86868e'};`;
+
+    const switchOn = isActive && charging;
+    const switchStyle =
+      `width:46px; height:26px; border-radius:13px; border:none; padding:3px; cursor:${isActive ? 'pointer' : 'not-allowed'};` +
+      ` display:flex; align-items:center; transition:background .25s ease; opacity:${isActive ? 1 : 0.4};` +
+      ` background:${switchOn ? chargeAccent : '#34343c'};`;
+    const knobStyle =
+      `width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .25s ease;` +
+      ` transform:translateX(${switchOn ? '20px' : '0'});`;
+
+    let caption;
+    if (isOff) caption = 'No device connected';
+    else if (isSleep) caption = 'Device asleep — last reading shown';
+    else if (charging) caption = `Charging · ${pct}%`;
+    else caption = `Connected · ${pct}%`;
+
+    return {
+      pct,
+      showNumber,
+      chargeAccent,
+      accentColor,
+      // icon visuals
+      strokeColor: isActive ? '#e9e9ec' : '#5b5b62',
+      fillWidth: isOff ? '0%' : pct + '%',
+      fillColor: isActive ? accentColor : '#54545b',
+      fillOpacity: isSleep ? 0.4 : 1,
+      numberColor: isActive ? '#f4f4f6' : (isSleep ? '#83838b' : '#5b5b62'),
+      pctLabel: isOff ? '—' : pct + '%',
+      showCharge: isActive && charging,
+      showSleep: isSleep,
+      caption,
+      // controls
+      sliderLabel: isOff ? '—' : pct + '%',
+      sliderValColor: isActive ? '#f2f2f4' : '#86868e',
+      sliderDisabled: isOff,
+      onPct: (e) => this.setState({ pct: Number(e.target.value) }),
+      setActive: setConn('active'),
+      setSleep: setConn('sleep'),
+      setOff: setConn('off'),
+      activeBtnStyle: segBase(isActive),
+      sleepBtnStyle: segBase(isSleep),
+      offBtnStyle: segBase(isOff),
+      toggleCharge: () => { if (isActive) this.setState({ charging: !charging }); },
+      chargeDisabled: !isActive,
+      chargeLabelColor: isActive ? '#d6d6da' : '#5f5f66',
+      switchStyle,
+      knobStyle,
+    };
+  }
+}
+</script>
+</body>
+</html>
