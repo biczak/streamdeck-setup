@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import streamDeck from "@elgato/streamdeck";
 import type { BatteryProvider, BatteryReading, DeviceInfo } from "../types";
 import type { ConnState } from "../../render/colors";
 
@@ -74,8 +75,16 @@ export class GHubProvider implements BatteryProvider {
 
 	async list(): Promise<DeviceInfo[]> {
 		try {
-			return parseDeviceList(await ghubGet("/devices/list"));
-		} catch {
+			const payload = await ghubGet("/devices/list");
+			const devices = parseDeviceList(payload);
+			// Diagnostic: parseDeviceList requires capabilities.hasBatteryStatus, which is
+			// unverified against a real G HUB payload — log the raw shape so a mismatch
+			// (wrong field name, nesting, etc.) is visible instead of just "0 found".
+			streamDeck.logger.info(`ghub: /devices/list raw payload: ${JSON.stringify(payload)}`);
+			streamDeck.logger.info(`ghub: parsed ${devices.length} device(s) with battery capability`);
+			return devices;
+		} catch (e) {
+			streamDeck.logger.warn("ghub: list failed", e as Error);
 			return [];
 		}
 	}

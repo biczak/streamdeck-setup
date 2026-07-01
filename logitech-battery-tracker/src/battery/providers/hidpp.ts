@@ -1,4 +1,5 @@
 import type { Device } from "node-hid";
+import streamDeck from "@elgato/streamdeck";
 import type { BatteryProvider, BatteryReading, DeviceInfo } from "../types";
 import {
 	buildLongRequest, buildShortRequest, parseResponse, matches, RECEIVER_INDEX, IROOT_INDEX, HIDPP_SHORT, HIDPP_LONG, type ParsedResponse,
@@ -30,7 +31,8 @@ async function loadHid(): Promise<NodeHid | null> {
 	if (hidModule === undefined) {
 		try {
 			hidModule = await import("node-hid");
-		} catch {
+		} catch (e) {
+			streamDeck.logger.warn("hidpp: node-hid failed to load", e as Error);
 			return null; // leave hidModule undefined so a later call retries
 		}
 	}
@@ -211,7 +213,11 @@ export class HidppProvider implements BatteryProvider {
 		if (this.paths) return this.paths;
 		const HID = await loadHid();
 		if (!HID) return null;
-		const entries = selectHidppPaths(HID.devices());
+		const all = HID.devices();
+		const entries = selectHidppPaths(all);
+		streamDeck.logger.info(
+			`hidpp: node-hid sees ${all.length} HID device(s), ${entries.length} match Logitech HID++ (vid=0x046d, usagePage=0xff00)`,
+		);
 		const long = entries.find((d) => d.usage === 2 && d.path)?.path ?? null;
 		const short = entries.find((d) => d.usage === 1 && d.path)?.path ?? null;
 		if (!long) return null;
