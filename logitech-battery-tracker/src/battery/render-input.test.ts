@@ -15,6 +15,11 @@ describe("readingToRenderInput", () => {
 	});
 	it("maps a null reading (no device) to the off state at 0%", () => {
 		const ri = readingToRenderInput(null, {});
-		expect(ri).toMatchObject({ state: "off", percent: 0, charging: false });
+		expect(ri).toMatchObject({ state: "off", percent: 0, charging: false, full: false });
+	});
+	it("maps reading.full through, defaulting to false when absent", () => {
+		expect(readingToRenderInput(reading, {})).toMatchObject({ full: false });
+		const full: BatteryReading = { ...reading, charging: false, full: true };
+		expect(readingToRenderInput(full, {})).toMatchObject({ full: true });
 	});
 });

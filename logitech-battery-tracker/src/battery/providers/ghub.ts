@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import streamDeck from "@elgato/streamdeck";
 import type { BatteryProvider, BatteryReading, DeviceInfo } from "../types";
 import type { ConnState } from "../../render/colors";
 
@@ -10,9 +11,10 @@ export function parseDeviceList(payload: unknown): DeviceInfo[] {
 	if (!Array.isArray(infos)) return [];
 	const out: DeviceInfo[] = [];
 	for (const raw of infos) {
-		const d = raw as { deviceId?: string; displayName?: string; deviceType?: string; capabilities?: { hasBatteryStatus?: boolean } };
-		if (!d?.deviceId || !d.capabilities?.hasBatteryStatus) continue;
-		out.push({ id: `ghub:${d.deviceId}`, name: d.displayName ?? "Logitech device", kind: d.deviceType, source: "ghub" });
+		// Real G HUB /devices/list uses "id", not "deviceId" (verified against a live payload).
+		const d = raw as { id?: string; displayName?: string; deviceType?: string; capabilities?: { hasBatteryStatus?: boolean } };
+		if (!d?.id || !d.capabilities?.hasBatteryStatus) continue;
+		out.push({ id: `ghub:${d.id}`, name: d.displayName ?? "Logitech device", kind: d.deviceType, source: "ghub" });
 	}
 	return out;
 }
@@ -74,8 +76,11 @@ export class GHubProvider implements BatteryProvider {
 
 	async list(): Promise<DeviceInfo[]> {
 		try {
-			return parseDeviceList(await ghubGet("/devices/list"));
-		} catch {
+			const devices = parseDeviceList(await ghubGet("/devices/list"));
+			streamDeck.logger.info(`ghub: parsed ${devices.length} device(s) with battery capability`);
+			return devices;
+		} catch (e) {
+			streamDeck.logger.warn("ghub: list failed", e as Error);
 			return [];
 		}
 	}

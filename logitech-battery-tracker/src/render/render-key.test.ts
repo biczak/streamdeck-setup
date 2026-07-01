@@ -3,7 +3,7 @@ import { renderKey, type RenderInput } from "./render-key";
 import { fillColorFor } from "./colors";
 
 const base: RenderInput = {
-	percent: 72, state: "active", charging: false,
+	percent: 72, state: "active", charging: false, full: false,
 	showNumber: true, colorMode: "smooth", chargeAccent: "#ffd54f",
 };
 
@@ -46,6 +46,27 @@ describe("renderKey", () => {
 		// inactive stays grey even when "charging" is set
 		expect(renderKey({ ...base, charging: true, state: "asleep", chargeAccent: "#5cc8ff" })).not.toContain('stroke="#5cc8ff"');
 		expect(renderKey({ ...base, charging: true })).not.toContain("data-badge");
+	});
+	it("charging at 100% tints the outline #57A4DE instead of the accent color", () => {
+		const svg = renderKey({ ...base, charging: true, percent: 100, chargeAccent: "#5cc8ff" });
+		expect(svg).toContain('stroke="#57A4DE"');
+		expect(svg).not.toContain('stroke="#5cc8ff"');
+	});
+	it("full (charging finished, still plugged in) at 100% also tints #57A4DE", () => {
+		// Hardware reports "full", not "charging", once done — charging is false here.
+		const svg = renderKey({ ...base, charging: false, full: true, percent: 100, chargeAccent: "#5cc8ff" });
+		expect(svg).toContain('stroke="#57A4DE"');
+		expect(svg).not.toContain('stroke="#5cc8ff"');
+	});
+	it("charging below 100% still uses the accent color, not the full-charge tint", () => {
+		const svg = renderKey({ ...base, charging: true, percent: 99, chargeAccent: "#5cc8ff" });
+		expect(svg).toContain('stroke="#5cc8ff"');
+		expect(svg).not.toContain('stroke="#57A4DE"');
+	});
+	it("full below 100% does not tint (percent hasn't caught up yet)", () => {
+		const svg = renderKey({ ...base, charging: false, full: true, percent: 99, chargeAccent: "#5cc8ff" });
+		expect(svg).not.toContain('stroke="#57A4DE"');
+		expect(svg).toContain('stroke="#e9e9ec"'); // not charging, not tinted -> white
 	});
 	it("escapes a quote in chargeAccent so attributes stay well-formed", () => {
 		expect(renderKey({ ...base, charging: true, chargeAccent: '"onload=x' })).not.toContain('"onload=x');
