@@ -10,7 +10,7 @@
         "test:watch": "vitest",
         "typecheck": "tsc --noEmit",
         "validate": "streamdeck validate dev.biczak.logitech-battery.sdPlugin",
-        "icons": "node scripts/make-placeholder-icons.mjs",
+        "icons": "tsx scripts/make-icons.ts",
         "preview": "node preview/build-preview.mjs",
         "probe": "tsx scripts/probe.ts",
         "package": "npm run build && node scripts/package-plugin.mjs && streamdeck pack dev.biczak.logitech-battery.sdPlugin -o dist -f"
@@ -28,6 +28,7 @@
         "@types/ws": "^8.5.12",
         "esbuild": "^0.24.0",
         "rollup": "^4.0.2",
+        "sharp": "^0.35.2",
         "tslib": "^2.6.2",
         "tsx": "^4.22.4",
         "typescript": "^5.5.0",
