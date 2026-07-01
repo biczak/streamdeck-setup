@@ -3,9 +3,12 @@ import { parseDeviceList, parseBatteryState } from "./ghub";
 
 describe("ghub payload parsing", () => {
 	it("extracts battery-capable devices", () => {
+		// Field is "id", not "deviceId" — verified against a real G HUB /devices/list payload
+		// (PRO X2 SUPERSTRIKE via G HUB 2026.x), where the original "deviceId" assumption
+		// didn't match reality and silently dropped every device.
 		const payload = { deviceInfos: [
-			{ deviceId: "dev1", displayName: "G Pro Wireless", deviceType: "mouse", capabilities: { hasBatteryStatus: true } },
-			{ deviceId: "dev2", displayName: "No Battery KB", deviceType: "keyboard", capabilities: { hasBatteryStatus: false } },
+			{ id: "dev1", displayName: "G Pro Wireless", deviceType: "mouse", capabilities: { hasBatteryStatus: true } },
+			{ id: "dev2", displayName: "No Battery KB", deviceType: "keyboard", capabilities: { hasBatteryStatus: false } },
 		]};
 		const out = parseDeviceList(payload);
 		expect(out).toHaveLength(1);

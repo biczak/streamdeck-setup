@@ -11,9 +11,10 @@ export function parseDeviceList(payload: unknown): DeviceInfo[] {
 	if (!Array.isArray(infos)) return [];
 	const out: DeviceInfo[] = [];
 	for (const raw of infos) {
-		const d = raw as { deviceId?: string; displayName?: string; deviceType?: string; capabilities?: { hasBatteryStatus?: boolean } };
-		if (!d?.deviceId || !d.capabilities?.hasBatteryStatus) continue;
-		out.push({ id: `ghub:${d.deviceId}`, name: d.displayName ?? "Logitech device", kind: d.deviceType, source: "ghub" });
+		// Real G HUB /devices/list uses "id", not "deviceId" (verified against a live payload).
+		const d = raw as { id?: string; displayName?: string; deviceType?: string; capabilities?: { hasBatteryStatus?: boolean } };
+		if (!d?.id || !d.capabilities?.hasBatteryStatus) continue;
+		out.push({ id: `ghub:${d.id}`, name: d.displayName ?? "Logitech device", kind: d.deviceType, source: "ghub" });
 	}
 	return out;
 }
@@ -75,12 +76,7 @@ export class GHubProvider implements BatteryProvider {
 
 	async list(): Promise<DeviceInfo[]> {
 		try {
-			const payload = await ghubGet("/devices/list");
-			const devices = parseDeviceList(payload);
-			// Diagnostic: parseDeviceList requires capabilities.hasBatteryStatus, which is
-			// unverified against a real G HUB payload — log the raw shape so a mismatch
-			// (wrong field name, nesting, etc.) is visible instead of just "0 found".
-			streamDeck.logger.info(`ghub: /devices/list raw payload: ${JSON.stringify(payload)}`);
+			const devices = parseDeviceList(await ghubGet("/devices/list"));
 			streamDeck.logger.info(`ghub: parsed ${devices.length} device(s) with battery capability`);
 			return devices;
 		} catch (e) {
