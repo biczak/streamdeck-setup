@@ -289,7 +289,7 @@ export class HidppProvider implements BatteryProvider {
 			t = await HidppTransport.open(paths.long, null, HID);
 			const parsed = await readBattery(t, deviceIndex);
 			if (!parsed) return { ...offline, state: "asleep" };
-			return { deviceId, name: "Logitech device", percent: parsed.percent, state: "active", charging: parsed.charging };
+			return { deviceId, name: "Logitech device", percent: parsed.percent, state: "active", charging: parsed.charging, full: parsed.full };
 		} catch {
 			this.invalidatePaths();
 			return { ...offline, state: "asleep" };
@@ -317,7 +317,7 @@ export class HidppProvider implements BatteryProvider {
 		let stopped = false;
 		let t: HidppTransport | undefined;
 		const active = (parsed: BatteryParse): BatteryReading => ({
-			deviceId, name: "Logitech device", percent: parsed.percent, state: "active", charging: parsed.charging,
+			deviceId, name: "Logitech device", percent: parsed.percent, state: "active", charging: parsed.charging, full: parsed.full,
 		});
 		const safetyRead = async (): Promise<void> => {
 			if (!t || stopped) return;

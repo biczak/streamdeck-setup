@@ -8,6 +8,10 @@ export interface BatteryReading {
 	percent: number; // 0..100; last-known when state is "asleep"
 	state: ConnState;
 	charging: boolean;
+	/** True once the device reports "full/complete" — charging ICs report this instead
+	 *  of "charging" once done, so a fully-charged, still-plugged-in device has
+	 *  charging: false, full: true. Only HID++ observes this today. */
+	full?: boolean;
 }
 
 export interface DeviceInfo {

@@ -4,6 +4,9 @@ export interface RenderInput {
 	percent: number;
 	state: ConnState;
 	charging: boolean;
+	/** Hardware reports "full/complete" instead of "charging" once done — this is the
+	 *  authoritative "fully charged and still plugged in" signal at 100%. */
+	full: boolean;
 	showNumber: boolean;
 	colorMode: ColorMode;
 	chargeAccent: string;
@@ -29,7 +32,7 @@ const FONT = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 /** The 144x144 battery icon — battery up top with a bold percentage below when shown,
  *  or vertically centered when the percentage is hidden. */
 export function renderKey(input: RenderInput): string {
-	const { state, charging, showNumber, colorMode, chargeAccent } = input;
+	const { state, charging, full, showNumber, colorMode, chargeAccent } = input;
 	const percentVal = Math.max(0, Math.min(100, Math.round(input.percent)));
 	const isActive = state === "active";
 	const isSleep = state === "asleep";
@@ -38,7 +41,10 @@ export function renderKey(input: RenderInput): string {
 	const accent = esc(chargeAccent);
 	// Charging is shown by tinting the battery outline (body + nub) with the accent
 	// color — no separate badge. White when active & not charging, grey when inactive.
-	const strokeColor = !isActive ? "#5b5b62" : charging && percentVal === 100 ? "#57A4DE" : charging ? accent : "#e9e9ec";
+	// Full-charge tint checks `full` (not just charging): once a device finishes
+	// charging, hardware reports "full", not "still charging" — see RenderInput.full.
+	const strokeColor =
+		!isActive ? "#5b5b62" : (charging || full) && percentVal === 100 ? "#57A4DE" : charging ? accent : "#e9e9ec";
 	const fillColor = isActive ? fillColorFor(percentVal, colorMode) : "#54545b";
 	const fillOpacity = isSleep ? 0.4 : 1;
 	const numberColor = isActive ? "#f4f4f6" : isSleep ? "#83838b" : "#5b5b62";
