@@ -47,6 +47,16 @@ describe("renderKey", () => {
 		expect(renderKey({ ...base, charging: true, state: "asleep", chargeAccent: "#5cc8ff" })).not.toContain('stroke="#5cc8ff"');
 		expect(renderKey({ ...base, charging: true })).not.toContain("data-badge");
 	});
+	it("charging at 100% tints the outline #57A4DE instead of the accent color", () => {
+		const svg = renderKey({ ...base, charging: true, percent: 100, chargeAccent: "#5cc8ff" });
+		expect(svg).toContain('stroke="#57A4DE"');
+		expect(svg).not.toContain('stroke="#5cc8ff"');
+	});
+	it("charging below 100% still uses the accent color, not the full-charge tint", () => {
+		const svg = renderKey({ ...base, charging: true, percent: 99, chargeAccent: "#5cc8ff" });
+		expect(svg).toContain('stroke="#5cc8ff"');
+		expect(svg).not.toContain('stroke="#57A4DE"');
+	});
 	it("escapes a quote in chargeAccent so attributes stay well-formed", () => {
 		expect(renderKey({ ...base, charging: true, chargeAccent: '"onload=x' })).not.toContain('"onload=x');
 	});
