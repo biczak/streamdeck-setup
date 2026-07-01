@@ -1,3 +1,4 @@
+import streamDeck from "@elgato/streamdeck";
 import type { BatteryProvider, BatteryReading, DeviceInfo } from "./types";
 import { HidppProvider } from "./providers/hidpp";
 import { GHubProvider } from "./providers/ghub";
@@ -18,10 +19,15 @@ export class BatteryService {
 		const byId = new Map<string, DeviceInfo>();
 		for (const provider of this.providers) {
 			try {
-				if (!(await provider.available())) continue;
-				for (const d of await provider.list()) if (!byId.has(d.id)) { byId.set(d.id, d); this.names.set(d.id, d.name); }
-			} catch {
-				/* skip a failing provider */
+				if (!(await provider.available())) {
+					streamDeck.logger.info(`listDevices: ${provider.source} unavailable`);
+					continue;
+				}
+				const found = await provider.list();
+				streamDeck.logger.info(`listDevices: ${provider.source} found ${found.length} device(s)`);
+				for (const d of found) if (!byId.has(d.id)) { byId.set(d.id, d); this.names.set(d.id, d.name); }
+			} catch (e) {
+				streamDeck.logger.warn(`listDevices: ${provider.source} threw`, e as Error);
 			}
 		}
 		return [...byId.values()];
